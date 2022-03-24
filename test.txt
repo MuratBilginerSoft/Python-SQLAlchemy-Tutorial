@@ -1,0 +1,55 @@
+
+conn = engine.connect()
+query = text("select 'Hello World'")
+result = conn.execute(query)
+
+""" 
+Daha kısa yazmak istersek 
+
+result = engine.connect().execute(text("select 'Hello World'")) 
+
+"""
+
+lists = result.all()
+print(lists)
+print(type(lists))
+print(lists[0])
+print(type(lists[0]))
+print(lists[0][0])
+
+# Database'e bir tablo create edelim.
+
+"""querycreate = text("CREATE TABLE some_table (x int, y int)")
+conn.execute(querycreate)
+print("some_table Created")"""
+
+# Tabloya Değer insert etmek
+
+queryinsertdata = text("INSERT INTO some_table (x, y) VALUES (:x, :y)")
+conn.execute(queryinsertdata,[{"x": 1, "y": 1}, {"x": 2, "y": 4}])
+conn.commit()
+print("Datas Inserted")
+
+for i in range(1001):
+    conn.execute(queryinsertdata, [{"x" : i, "y" : i*5}])
+
+conn.commit()
+print(str(i) + " Datas Inserted")
+
+
+with engine.begin() as con:
+    for i in range(1001):
+        if i == 5:
+            con.execute(queryinsertdata, [{"x" : i, "y" : i/0}])
+        else:
+            con.execute(queryinsertdata, [{"x" : i, "y" : i*5}])
+
+
+with engine.connect() as con:
+    for i in range(1001):
+        if i == 5:
+            con.execute(queryinsertdata, [{"x" : i, "y" : i/0}])
+        else:
+            con.execute(queryinsertdata, [{"x" : i, "y" : i*5}])
+
+    con.commit()
